@@ -1,56 +1,29 @@
 import React, { useState } from 'react';
 import { Shield, Terminal, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [terminalId, setTerminalId] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
     // Basic validation
     if (!username || !password || !terminalId) {
       setError('All fields are required');
-      setLoading(false);
       return;
     }
 
-    try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: username,
-        password: password,
-      });
-
-      if (signInError) {
-        throw signInError;
-      }
-
-      if (data?.user) {
-        // Store terminal ID in session
-        await supabase
-          .from('teller_sessions')
-          .insert([
-            {
-              user_id: data.user.id,
-              terminal_id: terminalId,
-              status: 'active'
-            }
-          ]);
-
-        navigate('/dashboard');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during login');
-    } finally {
-      setLoading(false);
+    // TODO: Replace with actual authentication logic
+    if (username.toLowerCase() === 'teller' && password === 'Pass' && terminalId === '1') {
+      navigate('/dashboard');
+    } else {
+      setError('Invalid Terminal ID, Username, or Password');
     }
   };
 
@@ -126,10 +99,9 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading}
               className="w-full bg-yellow-500 text-emerald-950 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
             >
-              {loading ? 'Logging in...' : 'Login'}
+              Login
             </button>
           </div>
 
